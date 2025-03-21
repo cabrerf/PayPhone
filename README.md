@@ -14,6 +14,10 @@
 2. I use mocks for testing
 3. Testing are for Wallet
 
+## User for test authorization
+
+new User { Username = "User1", Password = "XXX" }
+
 ## Important
 
 1. Used dependecy injection
