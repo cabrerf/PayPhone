@@ -28,6 +28,7 @@ new User { Username = "User1", Password = "XXX" }
 6. I added a ErrorHandling class with a Middleware for managing the errores
 7. For feature flags are different forms to implement, for this instance i used a featureManager
 8. In small projects also you can use Minimal API that is simply and easy, but if you want a project for scaling is better traditional api
+9. For this example i only use MAIN branch but in a real work i will create a new branch from a another branch for example develop and after that i will make commits and push and finally create a new pull request
 
 ## Feature flag 
 
@@ -46,6 +47,11 @@ PayPhone: API REST with controllers
 PayPhoneUnit: Project for TestUnit using XUnit framework
 
 PayPhoneIntegration: Project for integration test 
+
+##PENDING
+
+Add DB, I can use for example sql server with code first and use linq for retrieve data from DB. I can add another proyect "PayPhoneDataAccess"
+
 
 
    
