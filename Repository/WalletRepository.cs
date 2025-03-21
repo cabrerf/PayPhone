@@ -1,18 +1,20 @@
-﻿using Entities;
+﻿using DbAccess;
+using Entities;
+using Microsoft.EntityFrameworkCore;
 using Repository.Interfaces;
 
 namespace Repository
 {
     public class WalletRepository : IWalletRepository
     {
-        private static List<Wallet> wallets = new List<Wallet>
-        {
-            new Wallet { Id = 1, DocumentId = "DOC123", Name = "Personal Wallet", Balance = 1000.00m, CreatedAt = DateTime.Now, UpdatedAt = DateTime.Now },
-            new Wallet { Id = 2, DocumentId = "DOC456", Name = "Business Wallet", Balance = 5000.00m, CreatedAt = DateTime.Now, UpdatedAt = DateTime.Now },
-            new Wallet { Id = 3, DocumentId = "DOC789", Name = "Savings Wallet", Balance = 3000.00m, CreatedAt = DateTime.Now, UpdatedAt = DateTime.Now }
-        };
+        private readonly ApplicationDbContext _context;
 
-        public Task<Wallet> Create(string documentId, string name, decimal balance)
+        public WalletRepository(ApplicationDbContext context)
+        {
+            _context = context;
+        }
+
+        public async Task<Wallet> Create(string documentId, string name, decimal balance)
         {
             if (string.IsNullOrWhiteSpace(name))
                 throw new ArgumentException("Name cannot be empty.");
@@ -20,50 +22,45 @@ namespace Repository
             if (balance <= 0)
                 throw new ArgumentException("Balance must be greater than zero.");
 
-            return Task<Wallet>.Run(() =>
+            var newWallet = new Wallet
             {
-                var newWallet = new Wallet()
-                {
-                    Id = wallets.Max(wallet => wallet.Id) + 1,
-                    DocumentId = documentId,
-                    Name = name,
-                    Balance = balance,
-                    CreatedAt = DateTime.Now,
-                    UpdatedAt = DateTime.Now
-                };
+                DocumentId = documentId,
+                Name = name,
+                Balance = balance,
+                CreatedAt = DateTime.Now,
+                UpdatedAt = DateTime.Now
+            };
 
-                wallets.Add(newWallet);
+            _context.Wallets.Add(newWallet);
+            await _context.SaveChangesAsync();
 
-                return newWallet;
-            });
+            return newWallet;
         }
 
-        public Task<bool> Delete(int id)
+        public async Task<bool> Delete(int id)
         {
-            return Task<bool>.Run(() =>
-            {
-                Wallet? walletToDelete = wallets.FirstOrDefault(wallet => wallet.Id == id);
+            var walletToDelete = await _context.Wallets.FindAsync(id);
 
-                if (walletToDelete is null)
-                    return false;
+            if (walletToDelete == null)
+                return false;
 
-                return wallets.Remove(walletToDelete);
-            });
+            _context.Wallets.Remove(walletToDelete);
+            await _context.SaveChangesAsync();
+
+            return true;
         }
 
-        public Task<IEnumerable<Wallet>> Get()
+        public async Task<IEnumerable<Wallet>> Get()
         {
-            return Task.FromResult(wallets.AsEnumerable());
+            return await _context.Wallets.ToListAsync();
         }
 
-        public Task<Wallet?> GetId(int id)
+        public async Task<Wallet?> GetId(int id)
         {
-            Wallet? wallet = wallets.AsParallel().FirstOrDefault(wallet => wallet.Id == id);
-
-            return Task.FromResult(wallet);
+            return await _context.Wallets.FindAsync(id);
         }
 
-        public Task<Wallet?> Put(int id, string documentId, string name, decimal balance)
+        public async Task<Wallet?> Put(int id, string documentId, string name, decimal balance)
         {
             if (string.IsNullOrWhiteSpace(name))
                 throw new ArgumentException("Name cannot be empty.");
@@ -71,22 +68,19 @@ namespace Repository
             if (balance <= 0)
                 throw new ArgumentException("Balance must be greater than zero.");
 
-            return Task<Wallet>.Run(() =>
-            {
-                var walletToUpdate = wallets.FirstOrDefault(wallet => wallet.Id == id);
+            var walletToUpdate = await _context.Wallets.FindAsync(id);
 
-                if (walletToUpdate is null)
-                    return null;
+            if (walletToUpdate == null)
+                return null;
 
-                walletToUpdate.DocumentId = documentId;
-                walletToUpdate.Name = name;
-                walletToUpdate.Balance = balance;
-                walletToUpdate.UpdatedAt = DateTime.Now;
+            walletToUpdate.DocumentId = documentId;
+            walletToUpdate.Name = name;
+            walletToUpdate.Balance = balance;
+            walletToUpdate.UpdatedAt = DateTime.Now;
 
-                return walletToUpdate;
-            });
+            await _context.SaveChangesAsync();
+
+            return walletToUpdate;
         }
-
-
     }
 }

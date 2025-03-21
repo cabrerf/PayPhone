@@ -1,4 +1,6 @@
-﻿using Repository;
+﻿using DbAccess;
+using Microsoft.EntityFrameworkCore;
+using Repository;
 using Repository.Interfaces;
 
 namespace TodoList.InyectionExtensions
@@ -9,6 +11,10 @@ namespace TodoList.InyectionExtensions
         {
             builder.Services.AddScoped<IWalletRepository, WalletRepository>();
             builder.Services.AddScoped<ITransactionHistoryRepository, TransactionHistoryRepository>();
+
+            // Register the DbContext
+            builder.Services.AddDbContext<ApplicationDbContext>(options =>
+                options.UseSqlServer(builder.Configuration.GetConnectionString("Myconnection")));
         }
     }
 }
