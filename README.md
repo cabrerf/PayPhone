@@ -48,9 +48,9 @@ PayPhoneUnit: Project for TestUnit using XUnit framework
 
 PayPhoneIntegration: Project for integration test 
 
-##PENDING
+##Important
 
-Add DB, I can use for example sql server with code first and use linq for retrieve data from DB. I can add another proyect "PayPhoneDataAccess"
+For run you need to create migrations for DB sql server.
 
 
 
